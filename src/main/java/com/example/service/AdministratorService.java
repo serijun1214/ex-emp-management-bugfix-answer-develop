@@ -26,6 +26,11 @@ public class AdministratorService {
 	 * @param administrator 管理者情報
 	 */
 	public void insert(Administrator administrator) {
+
+		if(administratorRepository.findByMailAddress(administrator.getMailAddress()) != null) {
+			throw new IllegalArgumentException("そのメールアドレスは既に登録されています");
+		}
+		
 		administratorRepository.insert(administrator);
 	}
 

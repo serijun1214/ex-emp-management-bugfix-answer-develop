@@ -87,6 +87,12 @@
                       >
                         メールアドレスを入力してください
                       </label>
+                      <label
+                      th:text="${errorMessage}"
+                      class="error-messages"
+                    >
+                    そのメールアドレスは既に登録されています
+                    </label>
                       <input
                         type="text"
                         name="mailAddress"
