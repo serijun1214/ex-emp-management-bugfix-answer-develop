@@ -16,6 +16,8 @@ import com.example.domain.Employee;
 import com.example.form.UpdateEmployeeForm;
 import com.example.service.EmployeeService;
 
+import jakarta.servlet.http.HttpSession;
+
 /**
  * 従業員情報を操作するコントローラー.
  * 
@@ -28,6 +30,7 @@ public class EmployeeController {
 
 	@Autowired
 	private EmployeeService employeeService;
+
 
 	/**
 	 * 使用するフォームオブジェクトをリクエストスコープに格納する.
