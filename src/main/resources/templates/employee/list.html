@@ -98,6 +98,15 @@
 
           <!-- ここにモックのtable要素を貼り付けます -->
 
+          <form th:action="@{/employee/search}">
+            <input type="text" name="name" th:value="${name}">
+            <input type="submit" value="検索">
+            <br>
+            <br>
+            <p style="color: red;" th:text="${searchMessage}"></p>
+            <br>
+          </form>
+
           <table class="table table-striped">
             <thead>
               <tr>

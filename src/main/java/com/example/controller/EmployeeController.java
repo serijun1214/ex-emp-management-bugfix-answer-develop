@@ -95,4 +95,32 @@ public class EmployeeController {
 		employeeService.update(employee);
 		return "redirect:/employee/showList";
 	}
+
+	/////////////////////////////////////////////////////
+	// ユースケース：従業員一覧を曖昧検索で表示する
+	/////////////////////////////////////////////////////
+	/**
+	 * 従業員一覧を曖昧検索で表示します.
+	 * 
+	 * @param model モデル
+	 * @return 従業員一覧画面
+	 */
+	@GetMapping("/search")
+	public String search(Model model, String name) {
+		List<Employee> employeeList;
+		if (name.isEmpty()) {
+			employeeList = employeeService.showList();
+	} else {
+			employeeList = employeeService.searchName(name);
+	}
+
+	if (employeeList.isEmpty()) {
+		model.addAttribute("searchMessage", "1件もありませんでした");
+		employeeList = employeeService.showList();
+}
+
+		model.addAttribute("employeeList", employeeList);
+		model.addAttribute("name", name);
+		return "employee/list";
+	}
 }
