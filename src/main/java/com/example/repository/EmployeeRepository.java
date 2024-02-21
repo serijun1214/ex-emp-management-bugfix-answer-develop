@@ -84,7 +84,7 @@ public class EmployeeRepository {
 		template.update(updateSql, param);
 	}
 
-		/**
+	/**
 	 * 従業員一覧情報を曖昧検索で取得します.
 	 * 
 	 * @return 全従業員一覧 従業員が存在しない場合はサイズ0件の従業員一覧を返します
@@ -97,4 +97,26 @@ public class EmployeeRepository {
 
 		return developmentList;
 	}
+
+	/**
+	 * 従業員情報を登録します.
+	 */
+	public void insert(Employee employee) {
+		SqlParameterSource param = new BeanPropertySqlParameterSource(employee);
+		String sql = """
+			INSERT INTO employees(id,name,image,gender,hire_date,mail_address,zip_code,address,telephone,salary,characteristics,dependents_count) values(:id, :name, :image, :gender, :hireDate, :mailAddress, :zipCode, :address, :telephone, :salary, :characteristics, :dependentsCount);
+				""";
+			template.update(sql, param);
+	}
+
+	/**
+	 * 従業員IDの最大値を取得します.
+	 */
+	public Integer findMaxId() {
+		String sql = "SELECT MAX(id) FROM employees";
+		SqlParameterSource param = new MapSqlParameterSource();
+		Integer maxId = template.queryForObject(sql, param, Integer.class);
+		return maxId;
+	}
+
 }
