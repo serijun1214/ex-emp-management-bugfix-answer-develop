@@ -60,12 +60,12 @@
             id="bs-example-navbar-collapse-1"
           >
             <ul class="nav navbar-nav">
-              <li class="active">
+              <li>
                 <a href="list.html" th:href="@{/employee/showList}"
                   >従業員管理</a
                 >
               </li>
-              <li>
+              <li class="active">
                 <a href="insert.html" th:href="@{/employee/insertForm}"
                   >従業員登録</a
                 >
@@ -94,7 +94,7 @@
           >従業員リスト</a
         >
         </li>
-        <li class="active">従業員詳細</li>
+        <li class="active">従業員登録</li>
       </ol>
 
       <!-- register form -->
@@ -110,119 +110,99 @@
 
             <form
               method="post"
-              action="list.html"
-              th:action="@{/employee/update}"
-              th:object="${updateEmployeeForm}"
+              th:action="@{/employee/insert}"
+              th:object="${insertEmployeeForm}"
+              enctype="multipart/form-data"
             >
               <fieldset>
-                <legend>従業員情報</legend>
+                <legend>従業員登録フォーム</legend>
                 <table class="table table-striped">
                   <tr>
                     <th nowrap>従業員名</th>
                     <td>
-                      <span th:text="${employee.name}">山田花子</span>
+                      <label th:errors="*{name}" style="color: red;"></label>
+                      <input type="text" th:field="*{name}">
                     </td>
                   </tr>
                   <tr>
                     <th nowrap>写真</th>
                     <td>
-                      <img
-                        src="../../static/img/e2.png"
-                        th:src="${'/img/' + employee.image}"
-                      />
+                      <label th:errors="*{imageData}" style="color: red;"></label>
+                      <input type="file" accept=".jpg, .png" th:field="*{imageData}">
                     </td>
                   </tr>
                   <tr>
                     <th nowrap>性別</th>
                     <td>
-                      <span th:text="${employee.gender}">女性</span>
+                      <label th:errors="*{gender}" style="color: red;"></label>
+                      <input type="radio" value="男性" th:field="*{gender}">男性
+                      <input type="radio" value="女性" th:field="*{gender}">女性
                     </td>
                   </tr>
                   <tr>
                     <th nowrap>入社日</th>
                     <td>
-                      <span th:text="${#dates.format(employee.hireDate,'yyyy年MM月dd日')}">2012/11/29</span>
+                      <label th:errors="*{hireDate}" style="color: red;"></label>
+                      <input type="date" th:field="*{hireDate}" >
                     </td>
                   </tr>
                   <tr>
                     <th nowrap>メールアドレス</th>
                     <td>
-                      <span th:text="${employee.mailAddress}"
-                        >yamada@sample.com</span
-                      >
+                      <label th:errors="*{mailAddress}" style="color: red;"></label>
+                      <input type="email" th:field="*{mailAddress}">
                     </td>
                   </tr>
                   <tr>
                     <th nowrap>郵便番号</th>
                     <td>
-                      <span th:text="${employee.zipCode}">111-1111</span>
+                      <label th:errors="*{zipCode}" style="color: red;"></label>
+                      <input id="zipcode" type="text" th:field="*{zipCode}">
+                      <button id="address-search-btn">郵便番号検索</button>
                     </td>
                   </tr>
                   <tr>
                     <th nowrap>住所</th>
                     <td>
-                      <span th:text="${employee.address}"
-                        >東京都新宿区1-1-1</span
-                      >
+                      <label th:errors="*{address}" style="color: red;"></label>
+                      <input id="address" type="text" th:field="*{address}">
                     </td>
                   </tr>
                   <tr>
                     <th nowrap>電話番号</th>
                     <td>
-                      <span th:text="${employee.telephone}"
-                        >090-0000-0000</span
-                      >
+                      <label th:errors="*{telephone}" style="color: red;"></label>
+                      <input type="tel" th:field="*{telephone}">
                     </td>
                   </tr>
                   <tr>
                     <th nowrap>給料</th>
                     <td>
-                      <span th:text="${#numbers.formatInteger(employee.salary, 2, 'COMMA') + '円'}">400000円</span>
+                      <label th:errors="*{salary}" style="color: red;"></label>
+                      <input type="number" th:field="*{salary}">
                     </td>
                   </tr>
                   <tr>
                     <th nowrap>特性</th>
                     <td>
-                      <span th:text="${employee.characteristics}"
-                        >明るく素直な性格です。リーダーシップを発揮します。新卒社員研修の時はグループ開発の時にリーダーを買ってでました。積極性も人間性も抜群です。周りに対する不満も聞いたことがありません。</span
-                      >
+                      <label th:errors="*{characteristics}" style="color: red;"></label>
+                      <textarea name="" cols="30" rows="10" th:field="*{characteristics}"></textarea>
                     </td>
                   </tr>
                   <tr>
                     <th nowrap>扶養人数</th>
                     <td>
-                      <label
-                        th:errors="*{dependentsCount}"
-                        class="error-messages"
-                      >
-                        扶養人数を入力してください
-                      </label>
-                      <label
-                        class="control-label"
-                        style="color: red"
-                        for="dependentsCount"
-                      ></label>
-                      <input
-                        type="hidden"
-                        name="id"
-                        th:value="${employee.id}"
-                      />
+                      <label th:errors="*{dependentsCount}" style="color: red;"></label>
                       <input
                         type="text"
-                        name="dependentsCount"
-                        id="dependentsCount"
-                        class="form-control"
-                        value="3"
-                        th:errorclass="error-input"
-                        th:value="${employee.dependentsCount}"
+                        th:field="*{dependentsCount}"
                       />
                     </td>
                   </tr>
                 </table>
-                <button type="submit" class="btn btn-primary">更新</button>
+                <button type="submit" class="btn btn-primary">登録</button>
               </fieldset>
             </form>
-
             <!-- ここから下を編集する必要はありません -->
           </div>
         </div>
@@ -231,5 +211,6 @@
     <!-- end container -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="../../static/js/bootstrap.min.js"></script>
+    <script th:src="@{/js/employee.js}"></script>
   </body>
 </html>

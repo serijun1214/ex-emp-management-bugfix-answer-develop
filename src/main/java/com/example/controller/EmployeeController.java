@@ -1,7 +1,12 @@
 package com.example.controller;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.Random;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.example.domain.Employee;
+import com.example.form.InsertEmployeeForm;
 import com.example.form.UpdateEmployeeForm;
 import com.example.service.EmployeeService;
 
@@ -30,7 +36,6 @@ public class EmployeeController {
 
 	@Autowired
 	private EmployeeService employeeService;
-
 
 	/**
 	 * 使用するフォームオブジェクトをリクエストスコープに格納する.
@@ -110,17 +115,75 @@ public class EmployeeController {
 		List<Employee> employeeList;
 		if (name.isEmpty()) {
 			employeeList = employeeService.showList();
-	} else {
+		} else {
 			employeeList = employeeService.searchName(name);
-	}
+		}
 
-	if (employeeList.isEmpty()) {
-		model.addAttribute("searchMessage", "1件もありませんでした");
-		employeeList = employeeService.showList();
-}
+		if (employeeList.isEmpty()) {
+			model.addAttribute("searchMessage", "1件もありませんでした");
+			employeeList = employeeService.showList();
+		}
 
 		model.addAttribute("employeeList", employeeList);
 		model.addAttribute("name", name);
 		return "employee/list";
+	}
+
+	/////////////////////////////////////////////////////
+	// ユースケース：従業員登録画面を表示する
+	/////////////////////////////////////////////////////
+	/**
+	 * 従業員を登録する画面を表示します.
+	 * 
+	 * @param model モデル
+	 * @return 従業員登録画面
+	 */
+	@GetMapping("/insertForm")
+	public String insertForm(Model model, InsertEmployeeForm insertEmployeeForm) {
+		return "employee/insert";
+	}
+
+	/////////////////////////////////////////////////////
+	// ユースケース：従業員を登録する
+	/////////////////////////////////////////////////////
+	/**
+	 * 従業員を登録します
+	 * 
+	 * @param model モデル
+	 * @return 従業員一覧画面
+	 */
+	@PostMapping("/insert")
+	public synchronized String insert(@Validated InsertEmployeeForm insertEmployeeForm, BindingResult result, Model model)
+			throws IOException {
+
+		// 画像が選択されていない場合のチェック
+		if (insertEmployeeForm.getImageData().isEmpty()) {
+			// imageDataフィールドに対してエラーを追加
+			result.rejectValue("imageData", "NotNull", "画像を選択してください");
+		}
+		// フォームの初期バリデーションチェック
+		if (result.hasErrors()) {
+			return insertForm(model, insertEmployeeForm);
+		}
+
+		Employee employee = new Employee();
+		BeanUtils.copyProperties(insertEmployeeForm, employee);
+
+		// 画像ファイルをディレクトリにアップロード
+		// 乱数を生成するクラス
+		Random random = new Random();
+		// 0~99の乱数を生成
+		int randomNumber = random.nextInt(100);
+		// 画像ファイル名を生成
+		String fileName = randomNumber + insertEmployeeForm.getImageData().getOriginalFilename();
+		// 画像ファイルをディレクトリにアップロード
+		Path dst = Path.of("src/main/resources/static/img", fileName);
+		// 画像ファイルをコピー
+		Files.copy(insertEmployeeForm.getImageData().getInputStream(), dst);
+		employee.setImage(fileName);
+		employee.setId(employeeService.findMaxId() + 1);
+		employeeService.insert(employee);
+
+		return "redirect:/employee/showList";
 	}
 }

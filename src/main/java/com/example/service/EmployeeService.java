@@ -61,4 +61,20 @@ public class EmployeeService {
 	public List<Employee> searchName(String name) {
 		return employeeRepository.findByName(name);
 	}
+
+	/**
+	 * 従業員情報を登録します.
+	 * 
+	 * @param employee 登録する従業員情報
+	 */
+	public void insert(Employee employee) {
+		employeeRepository.insert(employee);
+	}
+
+	/**
+	 * 従業員のIDの最大値を取得します.
+	 */
+	public Integer findMaxId() {
+		return employeeRepository.findMaxId();
+	}
 }
