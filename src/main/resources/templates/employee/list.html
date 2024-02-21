@@ -11,6 +11,10 @@
     <title>従業員管理システム</title>
     <link
       rel="stylesheet"
+      href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css"
+    />
+    <link
+      rel="stylesheet"
       href="../../static/css/bootstrap.css"
       th:href="@{/css/bootstrap.css}"
     />
@@ -104,12 +108,12 @@
           <!-- ここにモックのtable要素を貼り付けます -->
 
           <form th:action="@{/employee/search}">
-            <input type="text" name="name" th:value="${name}">
-            <input type="submit" value="検索">
-            <br>
-            <br>
-            <p style="color: red;" th:text="${searchMessage}"></p>
-            <br>
+            <input id="search" type="text" name="name" th:value="${name}" />
+            <input type="submit" value="検索" />
+            <br />
+            <br />
+            <p style="color: red" th:text="${searchMessage}"></p>
+            <br />
           </form>
 
           <table class="table table-striped">
@@ -131,7 +135,10 @@
                   </a>
                 </td>
                 <td>
-                  <span th:text="${#dates.format(employee.hireDate,'yyyy年MM月dd日')}">2016/12/1</span>
+                  <span
+                    th:text="${#dates.format(employee.hireDate,'yyyy年MM月dd日')}"
+                    >2016/12/1</span
+                  >
                 </td>
                 <td>
                   <span th:text="${employee.dependentsCount} + '人'">3人</span>
@@ -146,7 +153,14 @@
     </div>
     <!-- end container -->
 
+    <script th:inline="javascript">
+      /*<![CDATA[*/
+      const names = /*[[${names}]]*/ names;
+      /*]]>*/
+    </script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="../../static/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <script th:src="@{/js/employee.js}"></script>
   </body>
 </html>
