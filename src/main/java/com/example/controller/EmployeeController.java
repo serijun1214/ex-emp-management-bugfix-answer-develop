@@ -3,6 +3,7 @@ package com.example.controller;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -21,8 +22,6 @@ import com.example.domain.Employee;
 import com.example.form.InsertEmployeeForm;
 import com.example.form.UpdateEmployeeForm;
 import com.example.service.EmployeeService;
-
-import jakarta.servlet.http.HttpSession;
 
 /**
  * 従業員情報を操作するコントローラー.
@@ -59,7 +58,14 @@ public class EmployeeController {
 	@GetMapping("/showList")
 	public String showList(Model model) {
 		List<Employee> employeeList = employeeService.showList();
+
+		List<String> names = new ArrayList<>();
+		for (Employee employee : employeeList) {
+			names.add(employee.getName());
+		}
+
 		model.addAttribute("employeeList", employeeList);
+		model.addAttribute("names", names);
 		return "employee/list";
 	}
 

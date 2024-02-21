@@ -1,5 +1,10 @@
 $(document).ready(function() {
-  // エレメントをjQueryセレクタで取得
+  
+  //オートコンプリート
+  $( "#search" ).autocomplete({
+    source: names
+  });
+
   const $zipcode = $("#zipcode");
   const $address = $("#address");
   const $button = $("#address-search-btn");
