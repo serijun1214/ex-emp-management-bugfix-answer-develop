@@ -76,8 +76,8 @@
               </li>
             </ul>
             <p class="navbar-text navbar-right">
-              <span th:text="${session.administratorName}">山田太郎</span
-              >さんこんにちは！ &nbsp;&nbsp;&nbsp;
+              <span th:text="${session.administratorName}">山田太郎</span>
+              さんこんにちは！ &nbsp;&nbsp;&nbsp;
               <a
                 href="../administrator/login.html"
                 class="navbar-link"
@@ -148,6 +148,43 @@
           </table>
 
           <!-- ここから下を編集する必要はありません -->
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-4 col-md-offset-4">
+          <ul class="pagination">
+            <!-- 最初へのリンク -->
+            <li th:unless="${paging.nowPage == 1}" class="page-item">
+              <a class="page-link" th:href="@{/employee/showList(page=1)}"
+                >最初へ</a
+              >
+            </li>
+
+            <!-- 動的なページリンク -->
+            <li
+              th:each="i : ${#numbers.sequence(startPage, endPage)}"
+              th:class="${i == paging.nowPage} ? 'active' : ''"
+              class="page-item"
+            >
+              <a
+                th:href="@{/employee/showList(nowPage=${i})}"
+                th:text="${i}"
+                class="page-link"
+              ></a>
+            </li>
+            <!-- 最後へのリンク -->
+            <li
+              th:unless="${paging.nowPage == paging.totalPage}"
+              class="page-item"
+            >
+              <a
+                class="page-link"
+                th:href="@{/employee/showList(page=${paging.totalPage})}"
+                >最後へ</a
+              >
+            </li>
+          </ul>
         </div>
       </div>
     </div>

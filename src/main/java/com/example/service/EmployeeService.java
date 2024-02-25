@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.domain.Employee;
+import com.example.paging.Paging;
 import com.example.repository.EmployeeRepository;
 
 /**
@@ -29,6 +30,19 @@ public class EmployeeService {
 	 */
 	public List<Employee> showList() {
 		List<Employee> employeeList = employeeRepository.findAll();
+		return employeeList;
+	}
+
+	/**
+	 * ページングと曖昧検索された従業員一覧情報を取得します
+	 * @param paging ページング情報
+	 * @param name 曖昧検索用の名前
+	 * 
+	 * @return 従業員一覧情報
+	 */
+
+	public List<Employee> findByNameWithPaging(Paging paging, String name) {
+		List <Employee> employeeList = employeeRepository.findByNameWithPaging(paging, name);
 		return employeeList;
 	}
 
@@ -76,5 +90,12 @@ public class EmployeeService {
 	 */
 	public Integer findMaxId() {
 		return employeeRepository.findMaxId();
+	}
+
+	/**
+	 * レコード数を取得します.
+	 */
+	public int totalRecord(String name) {
+		return employeeRepository.totalRecord(name);
 	}
 }

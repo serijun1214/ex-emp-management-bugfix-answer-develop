@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
 import com.example.domain.Employee;
 import com.example.form.InsertEmployeeForm;
 import com.example.form.UpdateEmployeeForm;
+import com.example.paging.Paging;
 import com.example.service.EmployeeService;
 
 /**
@@ -50,21 +50,41 @@ public class EmployeeController {
 	// ユースケース：従業員一覧を表示する
 	/////////////////////////////////////////////////////
 	/**
-	 * 従業員一覧画面を出力します.
+	 * 従業員一覧画面を出力します
 	 * 
-	 * @param model モデル
+	 * @param paging ページング情報
+	 * @param name   曖昧検索用の名前
+	 * @param model  モデル
+	 * 
 	 * @return 従業員一覧画面
 	 */
 	@GetMapping("/showList")
-	public String showList(Model model) {
-		List<Employee> employeeList = employeeService.showList();
+	public String showList(Paging paging, String name, Model model) {
 
+		// 全ページ数
+		paging.setTotalPage(employeeService.totalRecord(name));
+
+		// ページに表示する従業員一覧を取得
+		List<Employee> employeeList = employeeService.findByNameWithPaging(paging, name);
+
+		if (employeeList == null) {
+			model.addAttribute("searchMessage", "1件もありませんでした");
+			employeeList = employeeService.showList();
+		}
+
+		// 全従業員名を取得
 		List<String> names = new ArrayList<>();
 		for (Employee employee : employeeList) {
 			names.add(employee.getName());
 		}
 
+		int startPage = Math.max(1,  paging.getNowPage() - 1); // 表示する開始ページ
+		int endPage = Math.min( paging.getNowPage() + 1, paging.getTotalPage()); // 表示する終了ページ
+
 		model.addAttribute("employeeList", employeeList);
+		model.addAttribute("paging", paging);
+		model.addAttribute("startPage", startPage);
+		model.addAttribute("endPage", endPage);
 		model.addAttribute("names", names);
 		return "employee/list";
 	}
@@ -116,24 +136,19 @@ public class EmployeeController {
 	 * @param model モデル
 	 * @return 従業員一覧画面
 	 */
-	@GetMapping("/search")
-	public String search(Model model, String name) {
-		List<Employee> employeeList;
-		if (name.isEmpty()) {
-			employeeList = employeeService.showList();
-		} else {
-			employeeList = employeeService.searchName(name);
-		}
+	// @GetMapping("/search")
+	// public String search(Model model, String name) {
+	// List<Employee> employeeList;
+	// if (name.isEmpty()) {
+	// employeeList = employeeService.showList();
+	// } else {
+	// employeeList = employeeService.searchName(name);
+	// }
 
-		if (employeeList.isEmpty()) {
-			model.addAttribute("searchMessage", "1件もありませんでした");
-			employeeList = employeeService.showList();
-		}
-
-		model.addAttribute("employeeList", employeeList);
-		model.addAttribute("name", name);
-		return "employee/list";
-	}
+	// model.addAttribute("employeeList", employeeList);
+	// model.addAttribute("name", name);
+	// return "employee/list";
+	// }
 
 	/////////////////////////////////////////////////////
 	// ユースケース：従業員登録画面を表示する
