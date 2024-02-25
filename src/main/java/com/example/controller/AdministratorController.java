@@ -2,6 +2,7 @@ package com.example.controller;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -29,9 +30,15 @@ import jakarta.servlet.http.HttpSession;
 @RequestMapping("/")
 public class AdministratorController {
 
+	// 管理者情報を操作するサービスをDIコンテナから取得
 	@Autowired
 	private AdministratorService administratorService;
 
+	// パスワードをハッシュ化するためのインスタンスをDIコンテナから取得
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
+	/// セッションスコープをDIコンテナから取得
 	@Autowired
 	private HttpSession session;
 
@@ -81,14 +88,17 @@ public class AdministratorController {
 			return toInsert();
 		}
 
-		if(!form.getPassword().equals(form.getConfirmationPassword())) {
+		if (!form.getPassword().equals(form.getConfirmationPassword())) {
 			model.addAttribute("confirmationPassworderrorMessage", "パスワードと確認用パスワードが一致しません");
 			return toInsert();
 		}
 
 		Administrator administrator = new Administrator();
+
 		// フォームからドメインにプロパティ値をコピー
 		BeanUtils.copyProperties(form, administrator);
+		// パスワードをハッシュ化
+		administrator.setPassword(passwordEncoder.encode(administrator.getPassword()));
 
 		try {
 			administratorService.insert(administrator);
@@ -126,7 +136,7 @@ public class AdministratorController {
 			redirectAttributes.addFlashAttribute("errorMessage", "メールアドレスまたはパスワードが不正です。");
 			return "redirect:/";
 		}
-		
+
 		session.setAttribute("administratorName", administrator.getName());
 		return "redirect:/employee/showList";
 	}
