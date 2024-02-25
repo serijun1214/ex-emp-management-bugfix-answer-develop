@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 import com.example.domain.Employee;
+import com.example.paging.Paging;
 
 /**
  * employeesテーブルを操作するリポジトリ.
@@ -47,14 +48,46 @@ public class EmployeeRepository {
 	/**
 	 * 従業員一覧情報を入社日順で取得します.
 	 * 
-	 * @return 全従業員一覧 従業員が存在しない場合はサイズ0件の従業員一覧を返します
+	 * @return 全従業員一覧 従業員が存在しない場合はサイズ0件の従業員一覧を返しま
 	 */
 	public List<Employee> findAll() {
 		String sql = "SELECT id,name,image,gender,hire_date,mail_address,zip_code,address,telephone,salary,characteristics,dependents_count FROM employees ORDER BY hire_date";
+		List<Employee> employeeList = template.query(sql, EMPLOYEE_ROW_MAPPER);
+		return employeeList;
+	}
 
-		List<Employee> developmentList = template.query(sql, EMPLOYEE_ROW_MAPPER);
+	/**
+	 * ページングのされた従業員一覧情報を取得します.
+	 * @param paging ページング情報
+	 * @param name 曖昧検索用の名前
+	 * 
+	 * @return ページングされた従業員一覧
+	 */
+	public List<Employee> findByNameWithPaging(Paging paging, String name) {
 
-		return developmentList;
+		// SQL文を作成
+		StringBuilder sql = new StringBuilder();
+		sql .append("SELECT id,name,image,gender,hire_date,mail_address,zip_code,address,telephone,salary,characteristics,dependents_count FROM employees ");
+
+		MapSqlParameterSource param = new MapSqlParameterSource();
+
+		//曖昧検索用の名前が指定されている場合はWHERE句を追加
+		if (name != null && !name.isEmpty()) {
+			sql.append("WHERE name LIKE :name ");
+			param.addValue("name", "%" + name + "%");
+		}
+
+		sql.append("ORDER BY hire_date LIMIT :limit OFFSET :offset");
+		param.addValue("limit", paging.getPageSize());
+		param.addValue("offset", (paging.getNowPage() - 1) * paging.getPageSize());
+
+		List<Employee> employeeList = template.query(sql.toString(), param, EMPLOYEE_ROW_MAPPER);
+
+		if(employeeList.size() == 0) {
+			return null;
+		} else {
+			return employeeList;
+		}
 	}
 
 	/**
@@ -104,9 +137,9 @@ public class EmployeeRepository {
 	public void insert(Employee employee) {
 		SqlParameterSource param = new BeanPropertySqlParameterSource(employee);
 		String sql = """
-			INSERT INTO employees(id,name,image,gender,hire_date,mail_address,zip_code,address,telephone,salary,characteristics,dependents_count) values(:id, :name, :image, :gender, :hireDate, :mailAddress, :zipCode, :address, :telephone, :salary, :characteristics, :dependentsCount);
-				""";
-			template.update(sql, param);
+				INSERT INTO employees(id,name,image,gender,hire_date,mail_address,zip_code,address,telephone,salary,characteristics,dependents_count) values(:id, :name, :image, :gender, :hireDate, :mailAddress, :zipCode, :address, :telephone, :salary, :characteristics, :dependentsCount);
+					""";
+		template.update(sql, param);
 	}
 
 	/**
@@ -119,4 +152,23 @@ public class EmployeeRepository {
 		return maxId;
 	}
 
+	/**
+	 * ページングのためのレコード数を取得します.
+	 */
+	public int totalRecord(String name) {
+		// SQL文を作成
+		StringBuilder sql = new StringBuilder();
+		// レコード数を取得するSQL文
+		sql.append("SELECT COUNT(*) FROM employees ");
+		// 検索条件を設定
+		MapSqlParameterSource param = new MapSqlParameterSource();
+		if (name != null && !name.isEmpty()) {
+			sql.append("WHERE name LIKE :name ");
+			param.addValue("name", "%" + name + "%");
+		}
+		// SQL実行
+		Integer count = template.queryForObject(sql.toString(), param, Integer.class);
+		// 結果を返却
+		return count;
+	}
 }
